@@ -30,11 +30,12 @@ void gen_files(){
   int randomNames[10] = {0};
   int randNum;
   int folder_count =0;
+  int numTaken = 1;
   while(numTaken ==1){
     randNum = (rand() % 10) +1;
     int i;
     for(i=0; i<10; ++i){
-      if(randNum == ranomNames[i]){
+      if(randNum == randomNames[i]){
         numTaken =1;
         break;
       }
@@ -42,9 +43,12 @@ void gen_files(){
         numTaken =0;
       }
     }
-    printf("Random number was: %d", randNum);
+    printf("Random number was: %d\n", randNum);
+    randomNames[folder_count] = randNum;
     ++folder_count;
-    randomNames[count] = randNum;
+    numTaken = 1; //This is just to keep looping
+    if (folder_count ==7)
+      break; // Only want to generate 7 random file names
   }
 
   // big case statement for different folder names.
