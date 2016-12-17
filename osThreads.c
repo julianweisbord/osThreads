@@ -5,29 +5,89 @@
 #include <unistd.h>
 #include <time.h>
 
-#define STR_LEN 40
+#define STR_LEN 400
+#define MAX_ARGS 512
 
 
 void gen_files();
 void add_text(char* inputstr);
+void shell();
+void time2File(); //Outputs the current time to a file then prints it to stdout
 
 int main(int argc, char**argv){
 
     int len = 20;
     pid_t pid = getpid();
 
-    // creating a directory for all of the folders
+    // creating a directory for all of the folders with a process id in the name
     char dirName[len];
     memset(dirName, '\0', len);
-    char*folder = "julian.folders.";
+    char* folder = "julian.folders.";
     snprintf(dirName, len, "%s%d", folder, pid);
     printf("%s\n", dirName);
     mkdir(dirName, 0777);
     chdir(dirName);
     gen_files();
-
+    shell();
 
 }
+
+
+
+void shell(){
+  char user_input[STR_LEN];
+
+  int arg_num =0;
+  int i;
+  while(1 > 0){
+    char*args_arr[MAX_ARGS+1];
+    printf("\n");
+    printf("Command > ");
+    fgets(user_input, STR_LEN, stdin);
+    printf("User input: %s \n", user_input);
+    // char* command = strtok(user_input, " \n");
+    // args_arr[0] = strdup(command);
+    args_arr[0] = strdup(user_input);
+    // while(command!= NULL){
+    //
+    //   args_arr[arg_num] = strdup(command);
+    //   printf("Args: %s\n", args_arr[arg_num]);
+    //   ++arg_num;
+    //   command = strtok(NULL, " \n");
+    // }
+    // args_arr[arg_num] = '\0';
+    args_arr[1] ='\0';
+    // for(i=0; i< arg_num; ++i)
+    //   printf("Args: %s\n", args_arr[i]);
+    printf("Arg zero: %s\n",args_arr[0]);
+    if (strcmp(args_arr[0], "exit\n") ==0){
+      printf("exitting...\n");
+      exit(0);
+    }
+    else if(strcmp(args_arr[0], "time\n") ==0){
+      time2File();
+    }
+    else{
+      // make bash handle it
+      printf("In Else\n");
+      if(execvp(args_arr[0], args_arr) < 0){ //If this program doesn't recognize the command, have your computer's shell execute it.
+        fprintf(stderr, "Command not found: %s\n", args_arr[0]);
+        fflush(stdout);
+        exit(1);
+      }
+    }
+
+
+
+  }
+
+}
+
+void time2File(){
+  printf("In time2file function");
+}
+
+
 
 // Randomly Generate files
 void gen_files(){
@@ -56,10 +116,10 @@ void gen_files(){
     if(numTaken ==1)
       continue;
 
-    printf("Random number was: %d\n", randNum);
+    // printf("Random number was: %d\n", randNum);
     randomNames[folder_count] = randNum;
     ++folder_count;
-    printf("Folder Count %d\n", folder_count);
+    // printf("Folder Count %d\n", folder_count);
     numTaken = 1; //This is just to keep looping
     // big case statement for different folder names.
 
