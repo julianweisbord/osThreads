@@ -48,17 +48,8 @@ void shell(){
     // char* command = strtok(user_input, " \n");
     // args_arr[0] = strdup(command);
     args_arr[0] = strdup(user_input);
-    // while(command!= NULL){
-    //
-    //   args_arr[arg_num] = strdup(command);
-    //   printf("Args: %s\n", args_arr[arg_num]);
-    //   ++arg_num;
-    //   command = strtok(NULL, " \n");
-    // }
-    // args_arr[arg_num] = '\0';
+
     args_arr[1] ='\0';
-    // for(i=0; i< arg_num; ++i)
-    //   printf("Args: %s\n", args_arr[i]);
     printf("Arg zero: %s\n",args_arr[0]);
     if (strcmp(args_arr[0], "exit\n") ==0){
       printf("exitting...\n");
@@ -82,9 +73,51 @@ void shell(){
   }
 
 }
-
+// Forking isn't necessary in this function but is a test.
 void time2File(){
-  printf("In time2file function");
+  // printf("In time2file function");
+
+  FILE* fp;
+  char buf[1000];
+  size_t len = 0;
+  ssize_t read;
+
+  time_t rawtime;
+  pid_t  pid;
+  struct tm* timeinfo;
+  char*time_file = "time.txt";
+
+  pid = fork();
+  switch(pid){
+
+    case 0: // child writes local time to a file then prints the file line by line
+      time(&rawtime);
+      timeinfo = localtime(&rawtime);
+      // printf("\nCurrent local time and date: %s", asctime(timeinfo)); // prints time
+      fp = fopen(time_file, "w+"); //Create, read/write and truncate new file.
+
+      if(fp == NULL){
+        printf("File pointer error!");
+        return;
+      }
+      //Write to file
+      fputs(asctime(timeinfo), fp);
+
+      fclose(fp);
+      //read file
+      fp = fopen(time_file, "r");
+      while(fgets(buf, 1000, fp)!=NULL){
+        // printf("In while\n");
+        printf("\n%s\n", buf);
+      }
+      fclose(fp);
+      break;
+
+    case 1: //parent
+      printf("in parent!\n");
+      break;
+
+  }
 }
 
 
