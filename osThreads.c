@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <unistd.h>
 #include <time.h>
 
@@ -33,26 +34,26 @@ int main(int argc, char**argv){
 }
 
 
-
+// Decides what to do with user input
 void shell(){
   char user_input[STR_LEN];
 
   int arg_num =0;
   int i;
   while(1 > 0){
-    char*args_arr[MAX_ARGS+1];
+    char* args_arr[MAX_ARGS+1];
     printf("\n");
     printf("Command > ");
     fgets(user_input, STR_LEN, stdin);
     printf("User input: %s \n", user_input);
-    // char* command = strtok(user_input, " \n");
-    // args_arr[0] = strdup(command);
+
     args_arr[0] = strdup(user_input);
     args_arr[1] = NULL;
 
-    printf("Arg zero: %s\n",args_arr[0]);
+    // printf("Arg zero: %s\n",args_arr[0]);
     if (strcmp(args_arr[0], "exit\n") ==0){
-      printf("exitting...\n");
+      fprintf(stdout, "exitting...\n");
+      fflush(stdout);
       exit(0);
     }
     else if(strcmp(args_arr[0], "time\n") ==0){
@@ -65,6 +66,8 @@ void shell(){
       if(execvp(args_arr[0], args_arr) < 0){ //If this program doesn't recognize the command, have your computer's shell execute it.
         fprintf(stderr, "Command not found: %s\n", args_arr[0]);
         fflush(stdout);
+        fprintf(stderr, "USAGE: <time> | <exit> | <'shell-command'>\n");
+        fflush(stdout);
         exit(1);
       }
     }
@@ -76,7 +79,6 @@ void shell(){
 }
 // Forking isn't necessary in this function but is a test.
 void time2File(){
-  // printf("In time2file function");
 
   FILE* fp;
   char buf[1000];
@@ -115,7 +117,11 @@ void time2File(){
       break;
 
     case 1: //parent
-      printf("in parent!\n");
+      printf("in parent!\n"); //May not need to wait() because parent process exits quickly.
+      if (waitpid(pid, NULL, 0) < 0) {
+        perror("Failed to collect child process");
+        break;
+      }
       break;
 
   }
@@ -150,10 +156,10 @@ void gen_files(){
     if(numTaken ==1)
       continue;
 
-    // printf("Random number was: %d\n", randNum);
+
     randomNames[folder_count] = randNum;
     ++folder_count;
-    // printf("Folder Count %d\n", folder_count);
+
     numTaken = 1; //This is just to keep looping
     // big case statement for different folder names.
 
