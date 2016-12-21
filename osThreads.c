@@ -48,8 +48,8 @@ void shell(){
     // char* command = strtok(user_input, " \n");
     // args_arr[0] = strdup(command);
     args_arr[0] = strdup(user_input);
+    args_arr[1] = NULL;
 
-    args_arr[1] ='\0';
     printf("Arg zero: %s\n",args_arr[0]);
     if (strcmp(args_arr[0], "exit\n") ==0){
       printf("exitting...\n");
@@ -60,7 +60,8 @@ void shell(){
     }
     else{
       // make bash handle it
-      printf("In Else\n");
+      strtok(args_arr[0], "\n"); // Get rid of newline so that execvp recognizes the command
+
       if(execvp(args_arr[0], args_arr) < 0){ //If this program doesn't recognize the command, have your computer's shell execute it.
         fprintf(stderr, "Command not found: %s\n", args_arr[0]);
         fflush(stdout);
